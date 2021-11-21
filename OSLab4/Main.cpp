@@ -7,7 +7,7 @@
 
 struct Row {
 	double items[MATRIX_SIZE];
-	int resultPosition;
+	double result;
 };
 
 VOID searchThread(LPVOID param);
@@ -45,11 +45,14 @@ VOID searchThread(LPVOID param) {
 	for (int i = 0; i < MATRIX_SIZE; i++)
 		rowPointer->items[i] = (double)(((rand() % 100 >> 2) + 1) * pow((rand() >> ((rand() % 8) + 1) + 1), 2)) / ((rand() * 3) + 1);
 
-	rowPointer->resultPosition = 0;
-	for (int i = 1; i < MATRIX_SIZE; i++) {
-		if (rowPointer->items[i] > rowPointer->items[rowPointer->resultPosition])
-			rowPointer->resultPosition = i;
+	double result = 0;
+
+	for (int i = 0; i < MATRIX_SIZE; i++) {
+		result += rowPointer->items[i];
 	}
+
+	result /= MATRIX_SIZE;
+	rowPointer->result = result;
 }
 
 VOID outputThread(LPVOID param) {
@@ -65,5 +68,5 @@ VOID outputThread(LPVOID param) {
 
 	printf_s("\nРЕЗУЛЬТАТЫ:\n");
 	for (int i = 0; i < MATRIX_SIZE; i++)
-		printf_s("Максимум %d-ой строки: %lf\n", i + 1, matrix[i].items[matrix[i].resultPosition]);
+		printf_s("Среднее в %d-ой строке: %lf\n", i + 1, matrix[i].result);
 }
