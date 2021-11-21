@@ -3,11 +3,12 @@
 #include <time.h>
 #include <math.h>
 
-#define MATRIX_SIZE 5
+#define MATRIX_SIZE 4
+#define NO_ODD_NUMBERS -1
 
 struct Row {
-	double items[MATRIX_SIZE];
-	int resultPosition;
+	int items[MATRIX_SIZE];
+	int result;
 };
 
 VOID searchThread(LPVOID param);
@@ -43,13 +44,16 @@ VOID searchThread(LPVOID param) {
 	Row* rowPointer = (Row*) param;
 
 	for (int i = 0; i < MATRIX_SIZE; i++)
-		rowPointer->items[i] = (double)(((rand() % 100 >> 2) + 1) * pow((rand() >> ((rand() % 8) + 1) + 1), 2)) / ((rand() * 3) + 1);
+		rowPointer->items[i] = rand() % 100;
 
-	rowPointer->resultPosition = 0;
-	for (int i = 1; i < MATRIX_SIZE; i++) {
-		if (rowPointer->items[i] > rowPointer->items[rowPointer->resultPosition])
-			rowPointer->resultPosition = i;
+	for (int i = 0; i < MATRIX_SIZE; i++) {
+		if (rowPointer->items[i] % 2 != 0) {
+			rowPointer->result = rowPointer->items[i];
+			return;
+		}
 	}
+
+	rowPointer->result = NO_ODD_NUMBERS;
 }
 
 VOID outputThread(LPVOID param) {
@@ -57,13 +61,18 @@ VOID outputThread(LPVOID param) {
 
 	printf_s("МАТРИЦА:\n");
 	for (int i = 0; i < MATRIX_SIZE; i++) {
+		printf_s("|\t");
 		for (int j = 0; j < MATRIX_SIZE; j++)
-			printf_s("%lf ", matrix[i].items[j]);
+			printf_s("%d\t", matrix[i].items[j]);
 
-		printf_s("\n");
+		printf_s("|\n");
 	}
 
 	printf_s("\nРЕЗУЛЬТАТЫ:\n");
-	for (int i = 0; i < MATRIX_SIZE; i++)
-		printf_s("Максимум %d-ой строки: %lf\n", i + 1, matrix[i].items[matrix[i].resultPosition]);
+	for (int i = 0; i < MATRIX_SIZE; i++) {
+		if (matrix[i].result != NO_ODD_NUMBERS)
+			printf_s("Первое нечётное число %d-ой строки: %d\n", i + 1, matrix[i].result);
+		else
+			printf_s("В строке №%d нет нечетных чисел.", i + 1);
+	}
 }
